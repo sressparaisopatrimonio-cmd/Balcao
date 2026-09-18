@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Balcão Virtual - Bolsa de Reuso de Bens Escolares</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            600: '#1d4ed8',
+                            700: '#1e40af',
+                            800: '#1e3a8a',
+                        },
+                        eco: {
+                            50: '#f0fdf4',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col">
+
+    <header class="bg-brand-800 text-white shadow-lg sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <!-- Logo e Título -->
+                <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('catalog')">
+                    <div class="bg-white/10 p-2.5 rounded-xl backdrop-blur-md border border-white/20">
+                        <i class="fa-solid fa-recycle text-eco-500 text-2xl sm:text-3xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-lg sm:text-xl font-bold tracking-tight leading-snug">EduReuso <span class="text-eco-500 font-normal">Virtual</span></h1>
+                        <p class="text-xs text-slate-300 hidden sm:block">Balcão de Transferência de Bens Móveis Escolares</p>
+                    </div>
+                </div>
+
+                <!-- Menu de Navegação Superior -->
+                <nav class="hidden md:flex items-center space-x-1">
+                    <button onclick="switchTab('catalog')" id="nav-catalog" class="nav-btn px-4 py-2.5 rounded-lg text-sm font-medium transition-all bg-white/10 text-white flex items-center space-x-2">
+                        <i class="fa-solid fa-boxes-stacked"></i>
+                        <span>Catálogo de Bens</span>
+                    </button>
+                    <button onclick="switchTab('announce')" id="nav-announce" class="nav-btn px-4 py-2.5 rounded-lg text-sm font-medium transition-all text-slate-200 hover:bg-white/10 hover:text-white flex items-center space-x-2">
+                        <i class="fa-solid fa-plus-circle"></i>
+                        <span>Anunciar Ocioso</span>
+                    </button>
+                    <button onclick="switchTab('requests')" id="nav-requests" class="nav-btn px-4 py-2.5 rounded-lg text-sm font-medium transition-all text-slate-200 hover:bg-white/10 hover:text-white flex items-center space-x-2 relative">
+                        <i class="fa-solid fa-clipboard-list"></i>
+                        <span>Solicitações</span>
+                        <span id="requests-badge" class="hidden absolute -top-1 -right-1 bg-eco-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center border-2 border-brand-800">0</span>
+                    </button>
+                    <button onclick="switchTab('guide')" id="nav-guide" class="nav-btn px-4 py-2.5 rounded-lg text-sm font-medium transition-all text-slate-200 hover:bg-white/10 hover:text-white flex items-center space-x-2">
+                        <i class="fa-solid fa-circle-info"></i>
+                        <span>Como Usar Grátis</span>
+                    </button>
+                </nav>
+
+                <!-- Botão Menu Mobile -->
+                <div class="md:hidden flex items-center">
+                    <button onclick="toggleMobileMenu()" class="text-slate-200 hover:text-white p-2 rounded-lg focus:outline-none">
+                        <i class="fa-solid fa-bars text-xl" id="mobile-menu-icon"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Menu Mobile Expandível -->
+        <div id="mobile-menu" class="hidden md:hidden bg-brand-800 border-t border-brand-700 px-4 pt-2 pb-4 space-y-2">
+            <button onclick="switchTab('catalog'); toggleMobileMenu()" class="w-full text-left px-3 py-2.5 rounded-md text-base font-medium text-white hover:bg-white/10 flex items-center space-x-3">
+                <i class="fa-solid fa-boxes-stacked w-5"></i><span>Catálogo de Bens</span>
+            </button>
+            <button onclick="switchTab('announce'); toggleMobileMenu()" class="w-full text-left px-3 py-2.5 rounded-md text-base font-medium text-slate-200 hover:bg-white/10 flex items-center space-x-3">
+                <i class="fa-solid fa-plus-circle w-5"></i><span>Anunciar Ocioso</span>
+            </button>
+            <button onclick="switchTab('requests'); toggleMobileMenu()" class="w-full text-left px-3 py-2.5 rounded-md text-base font-medium text-slate-200 hover:bg-white/10 flex items-center space-x-3">
+                <i class="fa-solid fa-clipboard-list w-5"></i><span>Solicitações</span>
+            </button>
+            <button onclick="switchTab('guide'); toggleMobileMenu()" class="w-full text-left px-3 py-2.5 rounded-md text-base font-medium text-slate-200 hover:bg-white/10 flex items-center space-x-3">
+                <i class="fa-solid fa-circle-info w-5"></i><span>Como Usar Grátis</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        
+        <!-- Banner Informativo da Sustentabilidade -->
+        <section class="mb-8 bg-gradient-to-r from-brand-700 to-brand-800 rounded-2xl p-6 sm:p-8 text-white shadow-md relative overflow-hidden">
+            <div class="relative z-10 max-w-3xl">
+                <span class="bg-eco-500/20 text-eco-500 border border-eco-500/30 text-xs uppercase tracking-wider font-semibold px-3 py-1 rounded-full inline-block mb-3">
+                    <i class="fa-solid fa-leaf mr-1"></i> Sustentabilidade na Gestão Pública
+                </span>
+                <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight mb-2">Reaproveite bens públicos antes de comprar novos.</h2>
+                <p class="text-brand-100 text-sm sm:text-base leading-relaxed">
+                    Facilite o remanejamento patrimonial entre escolas públicas municipais e estaduais. Economize recursos financeiros e promova o consumo consciente na administração pública.
+                </p>
+            </div>
+            <div class="absolute -right-8 -bottom-10 opacity-10 pointer-events-none hidden lg:block">
+                <i class="fa-solid fa-school-flag text-[220px]"></i>
+            </div>
+        </section>
+
+        <!-- SEÇÃO 1: CATÁLOGO DE BENS -->
+        <section id="tab-catalog" class="tab-content space-y-6">
+            
+            <!-- Barra de Filtros e Pesquisa -->
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 sm:p-5">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    
+                    <!-- Campo de Busca -->
+                    <div class="relative col-span-1 sm:col-span-2 lg:col-span-1">
+                        <label class="block text-xs font-semibold text-slate-500 mb-1">Buscar Item</label>
+                        <div class="relative">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                            <input type="text" id="filter-search" oninput="applyFilters()" placeholder="Ex: Projetor, Cadeira, Tombo..." class="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-600 focus:bg-white transition-all">
+                        </div>
+                    </div>
+
+                    <!-- Filtro Categoria -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1">Categoria</label>
+                        <select id="filter-category" onchange="applyFilters()" class="w-full py-2 px-3 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-600 focus:bg-white transition-all">
+                            <option value="">Todas as Categorias</option>
+                            <option value="Mobiliário">Mobiliário</option>
+                            <option value="Eletrônicos">Eletrônicos</option>
+                            <option value="Informática">Informática</option>
+                            <option value="Esportes">Esportes</option>
+                            <option value="Outros">Outros</option>
+                        </select>
+                    </div>
+
+                    <!-- Filtro Estado de Conservação -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1">Estado de Conservação</label>
+                        <select id="filter-condition" onchange="applyFilters()" class="w-full py-2 px-3 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-600 focus:bg-white transition-all">
+                            <option value="">Todos os Estados</option>
+                            <option value="Ótimo">Ótimo (Sem avarias)</option>
+                            <option value="Bom">Bom (Pequenas marcas de uso)</option>
+                            <option value="Regular">Regular (Funcional)</option>
+                            <option value="Necessita Reparo">Necessita Reparo</option>
+                        </select>
+                    </div>
+
+                    <!-- Filtro Status -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-1">Status de Disponibilidade</label>
+                        <select id="filter-status" onchange="applyFilters()" class="w-full py-2 px-3 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-600 focus:bg-white transition-all">
+                            <option value="">Todos os Status</option>
+                            <option value="Disponível">Disponível</option>
+                            <option value="Em Solicitação">Em Solicitação</option>
+                            <option value="Transferido">Transferido</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Resumo dos Resultados e Botão de Limpar -->
+                <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+                    <span id="results-count">Mostrando 0 itens</span>
+                    <button onclick="resetFilters()" class="text-brand-600 hover:text-brand-800 font-medium flex items-center space-x-1">
+                        <i class="fa-solid fa-rotate-left"></i><span>Limpar Filtros</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Grade de Itens -->
+            <div id="items-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Inserido dinamicamente via JS -->
+            </div>
+
+            <!-- Estado Vazio -->
+            <div id="empty-state" class="hidden text-center py-16 bg-white rounded-2xl border border-dashed border-slate-300 p-8">
+                <div class="bg-slate-100 h-16 w-16 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-400">
+                    <i class="fa-solid fa-box-open text-2xl"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-700 mb-1">Nenhum item encontrado</h3>
+                <p class="text-slate-500 text-sm max-w-md mx-auto mb-6">Não encontramos mobiliários ou equipamentos que correspondam aos filtros selecionados.</p>
+                <button onclick="resetFilters()" class="bg-brand-600 hover:bg-brand-700 text-white font-medium text-sm px-4 py-2 rounded-lg transition-colors">
+                    Limpar Filtros de Busca
+                </button>
+            </div>
+        </section>
+
+        <!-- SEÇÃO 2: ANUNCIAR NOVO ITEM -->
+        <section id="tab-announce" class="tab-content hidden max-w-3xl mx-auto">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8">
+                <div class="flex items-center space-x-3 pb-6 mb-6 border-b border-slate-100">
+                    <div class="bg-eco-50 p-3 rounded-xl text-eco-600">
+                        <i class="fa-solid fa-box-archive text-xl"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-800">Cadastrar Item Ocioso para Doação</h2>
+                        <p class="text-xs text-slate-500">Disponibilize materiais excedentes para outras unidades escolares.</p>
+                    </div>
+                </div>
+
+                <form id="form-announce" onsubmit="handleAnnounceSubmit(event)" class="space-y-6">
+                    <!-- Título do Item -->
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Título / Nome do Item <span class="text-red-500">*</span></label>
+                        <input type="text" required id="announce-title" placeholder="Ex: Kit de 30 Carteiras Escolares Infantis" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-600 focus:bg-white transition-all">
+                    </div>
+
+                    <!-- Linha Dupla: Categoria e Quantidade -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1">Categoria <span class="text-red-500">*</span></label>
+                            <select required id="announce-category" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-600 focus:bg-white transition-all">
+                                <option value="">Selecione...</option>
+                                <option value="Mobiliário">Mobiliário</option>
+                                <option value="Eletrônicos">Eletrônicos</option>
+                                <option value="Informática">Informática</option>
+                                <option value="Esportes">Esportes</option>
+                                <option value="Outros">Outros</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1">Quantidade Disponível <span class="text-red-500">*</span></label>
+                            <input type="number" min="1" value="1" required id="announce-quantity" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-600 focus:bg-white transition-all">
+                        </div>
+                    </div>
+
+                    <!-- Linha Dupla: Estado e Tombamento -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1">Estado de Conservação <span class="text-red-500">*</span></label>
+                            <select required id="announce-condition" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-600 focus:bg-white transition-all">
+                                <option value="">Selecione...</option>
+                                <option value="Ótimo">Ótimo (Sem marcas significativas)</option>
+                                <option value="Bom">Bom (Sinais leves de uso)</option>
+                                <option value="Regular">Regular (Pequenos desgastes/Funcional)</option>
+                                <option value="Necessita Reparo">Necessita Reparo (Para manutenção)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1">Nº do Tombo / Patrimônio (Opção)</label>
+                            <input type="text" id="announce-patrimony" placeholder="Ex: PAT-2021-0892" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-600 focus:bg-white transition-all">
+                        </div>
+                    </div>
+
+                    <!-- Upload de Imagem -->
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Imagem do Item</label>
+                        <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-slate-300 border-dashed rounded-xl bg-slate-50 hover:bg-slate-100/50 transition-colors cursor-pointer" onclick="document.getElementById('announce-image-file').click()">
+                            <div class="space-y-1 text-center">
+                                <div id="image-preview-container" class="hidden mb-3">
+                                    <img id="image-preview" src="" alt="Pré-visualização" class="h-32 mx-auto rounded-lg object-cover shadow-sm border border-slate-200">
+                                </div>
+                                <div id="image-placeholder-icon">
+                                    <i class="fa-solid fa-cloud-arrow-up text-3xl text-slate-400 mb-2"></i>
+                                </div>
+                                <div class="text-xs text-slate-600">
+                                    <span class="font-semibold text-brand-600 hover:text-brand-700">Clique para selecionar foto</span> ou arraste para cá
+                                </div>
+                                <p class="text-[10px] text-slate-400">PNG, JPG ou WEBP até 2MB</p>
+                            </div>
+                        </div>
+                        <input type="file" id="announce-image-file" accept="image/*" class="hidden" onchange="previewImage(event)">
+                    </div>
+
+                    <!-- Descrição Detalhada -->
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Descrição Detalhada do Estado do Bem <span class="text-red-500">*</span></label>
+                        <textarea required id="announce-description" rows="3" placeholder="Informe detalhes importantes como cor, dimensões, voltagem (se eletrônico), avarias ou motivos do não uso." class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-600 focus:bg-white transition-all"></textarea>
+                    </div>
+
+                    <!-- Dados da Escola Doadora -->
+                    <div class="p-4 bg-brand-50/60 rounded-xl border border-brand-100 space-y-4">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-brand-800 flex items-center">
+                            <i class="fa-solid fa-school mr-1.5"></i> Dados da Escola Doadora (Responsável)
+                        </h3>
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1">Nome da Escola Doadora <span class="text-red-500">*</span></label>
+                                <input type="text" required id="announce-school" placeholder="Ex: E.M. Professora Maria Silva" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-600 transition-all">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1">Bairro / Região <span class="text-red-500">*</span></label>
+                                <input type="text" required id="announce-location" placeholder="Ex: Centro / Região Norte" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-600 transition-all">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1">Gestor / Responsável Patrimonial <span class="text-red-500">*</span></label>
+                                <input type="text" required id="announce-contact-person" placeholder="Ex: Carlos Andrade (Diretor)" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-600 transition-all">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1">Telefone / WhatsApp <span class="text-red-500">*</span></label>
+                                <input type="text" required id="announce-phone" placeholder="Ex: (31) 98888-7777" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-600 transition-all">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Botão Salvar -->
+                    <div class="flex justify-end space-x-3 pt-2">
+                        <button type="button" onclick="switchTab('catalog')" class="px-5 py-2.5 rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-100 text-sm font-medium transition-colors">
+                            Cancelar
+                        </button>
+                        <button type="submit" class="px-6 py-2.5 rounded-lg bg-eco-600 hover:bg-eco-700 text-white text-sm font-medium transition-colors shadow-sm flex items-center space-x-2">
+                            <i class="fa-solid fa-paper-plane"></i>
+                            <span>Publicar Anúncio</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- SEÇÃO 3: MINHAS SOLICITAÇÕES E PEDIDOS -->
+        <section id="tab-requests" class="tab-content hidden space-y-6">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-6 border-b border-slate-100 gap-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-800">Histórico de Solicitações de Transferência</h2>
+                        <p class="text-xs text-slate-500">Acompanhe os pedidos de transferência de bens realizados entre as unidades.</p>
+                    </div>
+                    <span class="bg-brand-50 text-brand-700 text-xs px-3 py-1.5 rounded-lg border border-brand-200 font-medium">
+                        Armazenamento Local Ativo
+                    </span>
+                </div>
+
+                <!-- Tabela / Lista de Solicitações -->
+                <div class="mt-6 overflow-x-auto">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-slate-50 text-slate-500 uppercase text-[11px] font-bold tracking-wider">
+                            <tr>
+                                <th class="p-3.5 rounded-l-lg">Item / Patrimônio</th>
+                                <th class="p-3.5">Escola Solicitante</th>
+                                <th class="p-3.5">Escola Doadora</th>
+                                <th class="p-3.5">Data Pedido</th>
+                                <th class="p-3.5">Status</th>
+                                <th class="p-3.5 text-right rounded-r-lg">Ação</th>
+                            </tr>
+                        </thead>
+                        <tbody id="requests-table-body" class="divide-y divide-slate-100">
+                            <!-- Inserido via JS -->
+                        </tbody>
+                    </table>
+
+                    <div id="requests-empty" class="text-center py-12">
+                        <i class="fa-solid fa-folder-open text-4xl text-slate-300 mb-2"></i>
+                        <p class="text-slate-500 text-sm">Nenhuma solicitação de transferência registrada até o momento.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SEÇÃO 4: GUIA "COMO USAR SEM DOMÍNIO" -->
+        <section id="tab-guide" class="tab-content hidden max-w-4xl mx-auto space-y-6">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8">
+                <div class="flex items-center space-x-3 pb-6 mb-6 border-b border-slate-100">
+                    <div class="bg-brand-50 p-3 rounded-xl text-brand-600">
+                        <i class="fa-solid fa-cloud-arrow-up text-xl"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-800">Como Disponibilizar Este Sistema Sem Comprar Domínio</h2>
+                        <p class="text-xs text-slate-500">Opções 100% gratuitas e sem burocracia para colocar o portal em uso imediato na rede pública.</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Opção 1: GitHub Pages -->
+                    <div class="border border-slate-200 rounded-xl p-5 hover:border-brand-500 transition-all bg-slate-50/50 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center space-x-2 text-brand-700 font-bold mb-3">
+                                <i class="fa-brands fa-github text-2xl"></i>
+                                <span>GitHub Pages</span>
+                            </div>
+                            <p class="text-xs text-slate-600 leading-relaxed mb-4">
+                                Permite hospedar este arquivo HTML gratuitamente na nuvem com link oficial acessível de qualquer lugar (ex: <i>sua-secretaria.github.io/balcao</i>).
+                            </p>
+                            <ol class="text-xs text-slate-500 space-y-1.5 list-decimal pl-4">
+                                <li>Crie uma conta no GitHub.</li>
+                                <li>Crie um repositório chamado <code class="bg-slate-200 px-1 py-0.5 rounded text-slate-800">balcao-escola</code>.</li>
+                                <li>Envie este arquivo com o nome <code class="bg-slate-200 px-1 py-0.5 rounded text-slate-800">index.html</code>.</li>
+                                <li>Ative o Pages nas configurações.</li>
+                            </ol>
+                        </div>
+                        <span class="mt-4 inline-block text-center text-xs font-semibold bg-brand-100 text-brand-800 py-1.5 rounded-md">Recomendado para Redes Municipais</span>
+                    </div>
+
+                    <!-- Opção 2: Rede Interna / Drive / Pen Drive -->
+                    <div class="border border-slate-200 rounded-xl p-5 hover:border-brand-500 transition-all bg-slate-50/50 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center space-x-2 text-eco-700 font-bold mb-3">
+                                <i class="fa-solid fa-network-wired text-2xl"></i>
+                                <span>Rede Local ou Pen Drive</span>
+                            </div>
+                            <p class="text-xs text-slate-600 leading-relaxed mb-4">
+                                Não necessita de internet nem de servidor na web. O arquivo roda direto no navegador de qualquer computador da escola.
+                            </p>
+                            <ol class="text-xs text-slate-500 space-y-1.5 list-decimal pl-4">
+                                <li>Salve o arquivo <code class="bg-slate-200 px-1 py-0.5 rounded text-slate-800">index.html</code>.</li>
+                                <li>Coloque numa pasta compartilhada da prefeitura ou num pen-drive.</li>
+                                <li>Dê dois cliques para abrir no Google Chrome ou Edge.</li>
+                            </ol>
+                        </div>
+                        <span class="mt-4 inline-block text-center text-xs font-semibold bg-eco-100 text-eco-800 py-1.5 rounded-md">100% Offline e Imediato</span>
+                    </div>
+
+                    <!-- Opção 3: Vercel / Netlify -->
+                    <div class="border border-slate-200 rounded-xl p-5 hover:border-brand-500 transition-all bg-slate-50/50 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center space-x-2 text-purple-700 font-bold mb-3">
+                                <i class="fa-solid fa-bolt text-2xl"></i>
+                                <span>Vercel ou Netlify</span>
+                            </div>
+                            <p class="text-xs text-slate-600 leading-relaxed mb-4">
+                                Plataformas modernas de hospedagem estática gratuita. Basta arrastar a pasta do computador para o site e o link estará pronto.
+                            </p>
+                            <ol class="text-xs text-slate-500 space-y-1.5 list-decimal pl-4">
+                                <li>Acesse vercel.com ou netlify.com.</li>
+                                <li>Faça um cadastro gratuito.</li>
+                                <li>Arraste o arquivo HTML para a área de upload.</li>
+                                <li>Seu site estará online em 10 segundos.</li>
+                            </ol>
+                        </div>
+                        <span class="mt-4 inline-block text-center text-xs font-semibold bg-purple-100 text-purple-800 py-1.5 rounded-md">Arraste e Solte</span>
+                    </div>
+                </div>
+
+                <div class="mt-8 p-4 bg-amber-50 border border-amber-200 rounded-xl flex items-start space-x-3 text-amber-800 text-xs leading-relaxed">
+                    <i class="fa-solid fa-circle-exclamation text-amber-600 text-base mt-0.5"></i>
+                    <div>
+                        <strong class="font-bold">Observação Técnica sobre Dados LocalStorage:</strong>
+                        <p class="mt-0.5 text-amber-700">Este protótipo armazena os dados localmente no navegador (`localStorage`). Para integrar o sistema entre múltiplos computadores em tempo real, basta posteriormente conectar este código a um banco de dados em nuvem gratuito (como Firebase ou Supabase) sem necessidade de alterar o design visual.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MODAL 1: DETALHES DO ITEM E FORMULÁRIO DE SOLICITAÇÃO -->
+    <div id="item-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white rounded-2xl max-w-2xl w-full shadow-2xl border border-slate-100 overflow-hidden my-8 transform transition-all">
+            
+            <!-- Cabeçalho do Modal -->
+            <div class="px-6 py-4 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
+                <span id="modal-category-badge" class="px-2.5 py-1 rounded-full text-xs font-bold bg-brand-100 text-brand-700 uppercase tracking-wide">Categoria</span>
+                <button onclick="closeModal('item-modal')" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+
+            <!-- Conteúdo Principal do Modal -->
+            <div class="p-6 space-y-6 max-h-[80vh] overflow-y-auto custom-scrollbar">
+                <div class="flex flex-col sm:flex-row gap-6">
+                    <!-- Imagem do Modal -->
+                    <div class="w-full sm:w-1/2">
+                        <div class="h-48 sm:h-56 bg-slate-100 rounded-xl overflow-hidden border border-slate-200 flex items-center justify-center relative">
+                            <img id="modal-image" src="" alt="Imagem do Item" class="w-full h-full object-cover">
+                            <span id="modal-status-badge" class="absolute top-3 right-3 px-2.5 py-1 rounded-md text-xs font-bold text-white shadow-sm">
+                                Status
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Dados Básicos -->
+                    <div class="w-full sm:w-1/2 space-y-3">
+                        <h3 id="modal-title" class="text-xl font-bold text-slate-800 leading-snug">Nome do Item</h3>
+                        
+                        <div class="space-y-1.5 text-xs">
+                            <p class="text-slate-500">Escola Responsável: <strong id="modal-school" class="text-slate-800">EMEF...</strong></p>
+                            <p class="text-slate-500">Localização/Bairro: <strong id="modal-location" class="text-slate-800">Centro</strong></p>
+                            <p class="text-slate-500">Quantidade: <strong id="modal-quantity" class="text-slate-800">1 unid.</strong></p>
+                            <p class="text-slate-500">Estado de Conservação: <strong id="modal-condition" class="text-slate-800">Bom</strong></p>
+                            <p class="text-slate-500">Patrimônio/Tombo: <strong id="modal-patrimony" class="text-brand-700 font-mono bg-slate-100 px-1.5 py-0.5 rounded">N/A</strong></p>
+                        </div>
+
+                        <!-- Card de Contato do Doador -->
+                        <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 text-xs space-y-1">
+                            <p class="font-semibold text-slate-700 flex items-center"><i class="fa-solid fa-address-book text-brand-600 mr-1.5"></i> Contato Patrimônio Doador:</p>
+                            <p class="text-slate-600" id="modal-contact-person">Responsável: Carlos</p>
+                            <p class="text-slate-600" id="modal-phone">Tel: (31) 98888-8888</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Descrição Longa -->
+                <div>
+                    <h4 class="text-xs font-bold uppercase text-slate-400 tracking-wider mb-1">Descrição do Item</h4>
+                    <p id="modal-description" class="text-sm text-slate-600 bg-slate-50 p-3 rounded-xl border border-slate-100 leading-relaxed">
+                        Sem descrição informada.
+                    </p>
+                </div>
+
+                <!-- Formulário Inline de Solicitação de Transferência -->
+                <div id="request-form-container" class="pt-4 border-t border-slate-100 space-y-4">
+                    <h4 class="text-sm font-bold text-brand-800 flex items-center">
+                        <i class="fa-solid fa-hand-holding-hand mr-2 text-brand-600"></i>
+                        Formulário de Solicitação de Transferência
+                    </h4>
+
+                    <form id="form-request" onsubmit="handleRequestSubmit(event)" class="space-y-3">
+                        <input type="hidden" id="request-item-id">
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">Sua Escola Solicitante <span class="text-red-500">*</span></label>
+                                <input type="text" required id="req-school" placeholder="Ex: E.M. Paulo Freire" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-brand-600">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">Responsável / Cargo <span class="text-red-500">*</span></label>
+                                <input type="text" required id="req-person" placeholder="Ex: Ana Souza (Vice-Diretora)" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-brand-600">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">E-mail de Contato <span class="text-red-500">*</span></label>
+                                <input type="email" required id="req-email" placeholder="escola@educacao.gov.br" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-brand-600">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">Telefone / WhatsApp <span class="text-red-500">*</span></label>
+                                <input type="text" required id="req-phone" placeholder="(31) 99999-0000" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-brand-600">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Justificativa da Necessidade <span class="text-red-500">*</span></label>
+                            <textarea required id="req-reason" rows="2" placeholder="Descreva brevemente por que a sua escola necessita deste mobiliário ou equipamento..." class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-brand-600"></textarea>
+                        </div>
+
+                        <div class="flex justify-end space-x-2 pt-2">
+                            <button type="button" onclick="closeModal('item-modal')" class="px-4 py-2 rounded-lg text-slate-500 hover:bg-slate-100 text-xs font-medium">
+                                Fechar
+                            </button>
+                            <button type="submit" id="btn-submit-request" class="px-5 py-2 rounded-lg bg-eco-600 hover:bg-eco-700 text-white text-xs font-semibold shadow-sm flex items-center space-x-1.5 transition-colors">
+                                <i class="fa-solid fa-paper-plane"></i>
+                                <span>Confirmar Solicitação</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- DADOS INICIAIS DE DEMONSTRAÇÃO ---
+        const initialItems = [
+            {
+                id: '1',
+                title: 'Conjunto de 25 Carteiras Escolares Infantis',
+                category: 'Mobiliário',
+                quantity: 25,
+                condition: 'Bom',
+                patrimony: 'PAT-2022-0112',
+                description: 'Carteiras escolares modelo padrão FNDE em bom estado. Apresentam pequenos riscos leves de uso, perfeitas para salas de ensino fundamental.',
+                school: 'E.M. Professora Maria Silva',
+                location: 'Bairro Santo Antônio',
+                contactPerson: 'João Santos (Secretário)',
+                phone: '(31) 98765-4321',
+                status: 'Disponível',
+                image: 'https://images.unsplash.com/photo-1580582932707-520aed937b7b?auto=format&fit=crop&w=600&q=80',
+                createdAt: '2026-09-10'
+            },
+            {
+                id: '2',
+                title: 'Projetor Epson PowerLite X39 (3500 Lumens)',
+                category: 'Eletrônicos',
+                quantity: 1,
+                condition: 'Ótimo',
+                patrimony: 'PAT-2020-0988',
+                description: 'Projetor multimídia seminovo. Acompanha cabo HDMI, cabo de força e controle remoto original. Lâmpada com poucas horas de uso.',
+                school: 'E.E. Dom Pedro II',
+                location: 'Centro',
+                contactPerson: 'Profa. Regina Lima',
+                phone: '(31) 99123-8899',
+                status: 'Disponível',
+                image: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=600&q=80',
+                createdAt: '2026-09-12'
+            },
+            {
+                id: '3',
+                title: 'Armário de Aço 2 Portas Reforçado',
+                category: 'Mobiliário',
+                quantity: 2,
+                condition: 'Regular',
+                patrimony: 'PAT-2018-0045',
+                description: 'Armários de aço para arquivo mortuário ou depósito. Estrutura rígida sem ferrugem grave, apenas necessita de pintura superficial opcional.',
+                school: 'E.M. Tiradentes',
+                location: 'Região Norte',
+                contactPerson: 'Marcos Silveira (Diretor)',
+                phone: '(31) 98444-1122',
+                status: 'Em Solicitação',
+                image: 'https://images.unsplash.com/photo-1595428774223-ef52624120d2?auto=format&fit=crop&w=600&q=80',
+                createdAt: '2026-09-14'
+            },
+            {
+                id: '4',
+                title: 'Lote com 10 Notebooks Positivo Master',
+                category: 'Informática',
+                quantity: 10,
+                condition: 'Necessita Reparo',
+                patrimony: 'PAT-2019-1102',
+                description: 'Lote de notebooks oriundos do laboratório de informática. Alguns precisam de formatação ou troca de bateria/fonte. Ideais para reaproveitamento de peças ou manutenção.',
+                school: 'E.M. Monteiro Lobato',
+                location: 'Bairro Jardim América',
+                contactPerson: 'Lucas T.I.',
+                phone: '(31) 99888-3344',
+                status: 'Disponível',
+                image: 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&w=600&q=80',
+                createdAt: '2026-09-15'
+            }
+        ];
+
+        // --- GERENCIAMENTO DE ESTADO ---
+        let items = [];
+        let requests = [];
+        let selectedImageBase64 = null;
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', () => {
+            loadFromLocalStorage();
+            renderItemsGrid(items);
+            renderRequestsTable();
+            updateRequestsBadge();
+        });
+
+        function loadFromLocalStorage() {
+            const storedItems = localStorage.getItem('edureuso_items');
+            const storedRequests = localStorage.getItem('edureuso_requests');
+
+            if (storedItems) {
+                items = JSON.parse(storedItems);
+            } else {
+                items = initialItems;
+                saveToLocalStorage('edureuso_items', items);
+            }
+
+            if (storedRequests) {
+                requests = JSON.parse(storedRequests);
+            } else {
+                requests = [
+                    {
+                        id: 'req-101',
+                        itemId: '3',
+                        itemTitle: 'Armário de Aço 2 Portas Reforçado',
+                        itemPatrimony: 'PAT-2018-0045',
+                        donorSchool: 'E.M. Tiradentes',
+                        reqSchool: 'E.M. Cora Coralina',
+                        reqPerson: 'Luciana M. (Gestora)',
+                        reqEmail: 'cora.coralina@edu.gov.br',
+                        reqPhone: '(31) 98888-0011',
+                        reason: 'Precisamos de armário seguro para organizar arquivos de matrículas de alunos.',
+                        date: '2026-09-15',
+                        status: 'Pendente'
+                    }
+                ];
+                saveToLocalStorage('edureuso_requests', requests);
+            }
+        }
+
+        function saveToLocalStorage(key, value) {
+            localStorage.setItem(key, JSON.stringify(value));
+        }
+
+        // --- NAVEGAÇÃO DE ABAS ---
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('bg-white/10', 'text-white');
+                btn.classList.add('text-slate-200');
+            });
+
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+            const activeNav = document.getElementById(`nav-${tabId}`);
+            if (activeNav) {
+                activeNav.classList.add('bg-white/10', 'text-white');
+                activeNav.classList.remove('text-slate-200');
+            }
+
+            if (tabId === 'catalog') {
+                applyFilters();
+            } else if (tabId === 'requests') {
+                renderRequestsTable();
+            }
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        // --- RENDERIZAÇÃO DO CATÁLOGO DE ITENS ---
+        function renderItemsGrid(itemsToRender) {
+            const grid = document.getElementById('items-grid');
+            const emptyState = document.getElementById('empty-state');
+            const resultsCount = document.getElementById('results-count');
+
+            grid.innerHTML = '';
+            resultsCount.textContent = `Mostrando ${itemsToRender.length} item(ns)`;
+
+            if (itemsToRender.length === 0) {
+                grid.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            grid.classList.remove('hidden');
+            emptyState.classList.add('hidden');
+
+            itemsToRender.forEach(item => {
+                const statusColors = {
+                    'Disponível': 'bg-eco-500 text-white',
+                    'Em Solicitação': 'bg-amber-500 text-white',
+                    'Transferido': 'bg-slate-500 text-white'
+                };
+
+                const card = document.createElement('div');
+                card.className = 'bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col justify-between group';
+                
+                card.innerHTML = `
+                    <div>
+                        <!-- Capa do Card -->
+                        <div class="h-44 bg-slate-100 relative overflow-hidden">
+                            <img src="${item.image}" alt="${item.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" onerror="this.src='https://placehold.co/600x400/e2e8f0/475569?text=Sem+Foto'">
+                            <span class="absolute top-3 left-3 px-2.5 py-1 rounded-full text-[11px] font-bold ${statusColors[item.status] || 'bg-slate-500 text-white'} shadow-sm">
+                                ${item.status}
+                            </span>
+                            <span class="absolute bottom-3 right-3 px-2 py-0.5 rounded bg-black/60 backdrop-blur-md text-white text-[10px] font-medium">
+                                ${item.category}
+                            </span>
+                        </div>
+
+                        <!-- Informações do Item -->
+                        <div class="p-5 space-y-3">
+                            <div class="flex items-start justify-between gap-2">
+                                <h3 class="font-bold text-slate-800 text-base leading-snug line-clamp-2">${item.title}</h3>
+                            </div>
+
+                            <div class="space-y-1 text-xs text-slate-600">
+                                <p class="flex items-center text-slate-500">
+                                    <i class="fa-solid fa-school w-4 text-brand-600"></i>
+                                    <span class="truncate">${item.school}</span>
+                                </p>
+                                <p class="flex items-center text-slate-500">
+                                    <i class="fa-solid fa-location-dot w-4 text-brand-600"></i>
+                                    <span class="truncate">${item.location}</span>
+                                </p>
+                            </div>
+
+                            <div class="flex items-center justify-between pt-2 border-t border-slate-100 text-xs">
+                                <span class="bg-slate-100 text-slate-700 px-2 py-1 rounded font-medium">
+                                    Qtd: <strong>${item.quantity}</strong>
+                                </span>
+                                <span class="text-slate-500">
+                                    Estado: <strong class="text-slate-700">${item.condition}</strong>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Botão Ação -->
+                    <div class="p-4 bg-slate-50 border-t border-slate-100">
+                        <button onclick="openItemModal('${item.id}')" class="w-full py-2 px-3 rounded-lg bg-brand-600 hover:bg-brand-700 text-white font-medium text-xs transition-colors flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-eye"></i>
+                            <span>Ver Detalhes e Solicitar</span>
+                        </button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // --- FILTROS DE PESQUISA ---
+        function applyFilters() {
+            const searchValue = document.getElementById('filter-search').value.toLowerCase().trim();
+            const categoryValue = document.getElementById('filter-category').value;
+            const conditionValue = document.getElementById('filter-condition').value;
+            const statusValue = document.getElementById('filter-status').value;
+
+            const filtered = items.filter(item => {
+                const matchesSearch = item.title.toLowerCase().includes(searchValue) ||
+                                      item.description.toLowerCase().includes(searchValue) ||
+                                      item.school.toLowerCase().includes(searchValue) ||
+                                      (item.patrimony && item.patrimony.toLowerCase().includes(searchValue));
+
+                const matchesCategory = categoryValue === '' || item.category === categoryValue;
+                const matchesCondition = conditionValue === '' || item.condition === conditionValue;
+                const matchesStatus = statusValue === '' || item.status === statusValue;
+
+                return matchesSearch && matchesCategory && matchesCondition && matchesStatus;
+            });
+
+            renderItemsGrid(filtered);
+        }
+
+        function resetFilters() {
+            document.getElementById('filter-search').value = '';
+            document.getElementById('filter-category').value = '';
+            document.getElementById('filter-condition').value = '';
+            document.getElementById('filter-status').value = '';
+            applyFilters();
+        }
+
+        // --- CADASTRO DE NOVO ANÚNCIO ---
+        function previewImage(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (file.size > 2 * 1024 * 1024) {
+                alert('A imagem é muito grande. Por favor, escolha um arquivo menor que 2MB.');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                selectedImageBase64 = e.target.result;
+                const previewImg = document.getElementById('image-preview');
+                const previewContainer = document.getElementById('image-preview-container');
+                const placeholderIcon = document.getElementById('image-placeholder-icon');
+
+                previewImg.src = selectedImageBase64;
+                previewContainer.classList.remove('hidden');
+                placeholderIcon.classList.add('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function handleAnnounceSubmit(e) {
+            e.preventDefault();
+
+            const newItem = {
+                id: Date.now().toString(),
+                title: document.getElementById('announce-title').value,
+                category: document.getElementById('announce-category').value,
+                quantity: parseInt(document.getElementById('announce-quantity').value),
+                condition: document.getElementById('announce-condition').value,
+                patrimony: document.getElementById('announce-patrimony').value || 'S/N',
+                description: document.getElementById('announce-description').value,
+                school: document.getElementById('announce-school').value,
+                location: document.getElementById('announce-location').value,
+                contactPerson: document.getElementById('announce-contact-person').value,
+                phone: document.getElementById('announce-phone').value,
+                status: 'Disponível',
+                image: selectedImageBase64 || 'https://placehold.co/600x400/e2e8f0/475569?text=Mobiliario+Escolar',
+                createdAt: new Date().toISOString().split('T')[0]
+            };
+
+            items.unshift(newItem);
+            saveToLocalStorage('edureuso_items', items);
+
+            // Reset do formulário
+            document.getElementById('form-announce').reset();
+            document.getElementById('image-preview-container').classList.add('hidden');
+            document.getElementById('image-placeholder-icon').classList.remove('hidden');
+            selectedImageBase64 = null;
+
+            alert('✅ Item publicado com sucesso no Balcão Virtual!');
+            switchTab('catalog');
+        }
+
+        // --- MODAL E SOLICITAÇÃO ---
+        function openItemModal(itemId) {
+            const item = items.find(i => i.id === itemId);
+            if (!item) return;
+
+            document.getElementById('request-item-id').value = item.id;
+            document.getElementById('modal-title').textContent = item.title;
+            document.getElementById('modal-category-badge').textContent = item.category;
+            document.getElementById('modal-image').src = item.image;
+            document.getElementById('modal-school').textContent = item.school;
+            document.getElementById('modal-location').textContent = item.location;
+            document.getElementById('modal-quantity').textContent = `${item.quantity} unidade(s)`;
+            document.getElementById('modal-condition').textContent = item.condition;
+            document.getElementById('modal-patrimony').textContent = item.patrimony;
+            document.getElementById('modal-contact-person').textContent = `Responsável: ${item.contactPerson}`;
+            document.getElementById('modal-phone').textContent = `Tel/Zap: ${item.phone}`;
+            document.getElementById('modal-description').textContent = item.description || 'Nenhuma observação cadastrada.';
+
+            const statusBadge = document.getElementById('modal-status-badge');
+            statusBadge.textContent = item.status;
+            
+            const btnSubmit = document.getElementById('btn-submit-request');
+            if (item.status === 'Transferido') {
+                statusBadge.className = 'absolute top-3 right-3 px-2.5 py-1 rounded-md text-xs font-bold bg-slate-600 text-white shadow-sm';
+                btnSubmit.disabled = true;
+                btnSubmit.classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                statusBadge.className = 'absolute top-3 right-3 px-2.5 py-1 rounded-md text-xs font-bold bg-eco-600 text-white shadow-sm';
+                btnSubmit.disabled = false;
+                btnSubmit.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+
+            document.getElementById('item-modal').classList.remove('hidden');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
+
+        function handleRequestSubmit(e) {
+            e.preventDefault();
+
+            const itemId = document.getElementById('request-item-id').value;
+            const item = items.find(i => i.id === itemId);
+
+            if (!item) return;
+
+            const newRequest = {
+                id: 'req-' + Date.now(),
+                itemId: item.id,
+                itemTitle: item.title,
+                itemPatrimony: item.patrimony,
+                donorSchool: item.school,
+                reqSchool: document.getElementById('req-school').value,
+                reqPerson: document.getElementById('req-person').value,
+                reqEmail: document.getElementById('req-email').value,
+                reqPhone: document.getElementById('req-phone').value,
+                reason: document.getElementById('req-reason').value,
+                date: new Date().toISOString().split('T')[0],
+                status: 'Em Análise'
+            };
+
+            requests.unshift(newRequest);
+            saveToLocalStorage('edureuso_requests', requests);
+
+            // Atualizar status do item para "Em Solicitação"
+            item.status = 'Em Solicitação';
+            saveToLocalStorage('edureuso_items', items);
+
+            document.getElementById('form-request').reset();
+            closeModal('item-modal');
+            updateRequestsBadge();
+
+            alert('🎉 Solicitação enviada com sucesso! O setor patrimonial da escola doadora responderá em breve.');
+            switchTab('requests');
+        }
+
+        // --- TABELA DE SOLICITAÇÕES ---
+        function renderRequestsTable() {
+            const tbody = document.getElementById('requests-table-body');
+            const emptyState = document.getElementById('requests-empty');
+
+            tbody.innerHTML = '';
+
+            if (requests.length === 0) {
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+
+            requests.forEach(req => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50 transition-colors border-b border-slate-100 text-slate-700';
+
+                tr.innerHTML = `
+                    <td class="p-3.5">
+                        <div class="font-bold text-slate-800">${req.itemTitle}</div>
+                        <div class="text-[11px] text-slate-400 font-mono">Tombo: ${req.itemPatrimony}</div>
+                    </td>
+                    <td class="p-3.5">
+                        <div class="font-semibold text-slate-800">${req.reqSchool}</div>
+                        <div class="text-[11px] text-slate-500">${req.reqPerson} (${req.reqPhone})</div>
+                    </td>
+                    <td class="p-3.5 text-slate-600">${req.donorSchool}</td>
+                    <td class="p-3.5 text-xs text-slate-500">${req.date}</td>
+                    <td class="p-3.5">
+                        <span class="px-2.5 py-1 rounded-full text-[11px] font-bold ${req.status === 'Concluído' ? 'bg-eco-100 text-eco-800' : 'bg-amber-100 text-amber-800'}">
+                            ${req.status}
+                        </span>
+                    </td>
+                    <td class="p-3.5 text-right">
+                        <button onclick="markAsCompleted('${req.id}')" class="text-xs text-brand-600 hover:text-brand-800 font-semibold px-2 py-1 bg-brand-50 hover:bg-brand-100 rounded transition-colors">
+                            Concluir Transferência
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function markAsCompleted(requestId) {
+            const req = requests.find(r => r.id === requestId);
+            if (!req) return;
+
+            req.status = 'Concluído';
+            saveToLocalStorage('edureuso_requests', requests);
+
+            // Atualizar status do item para "Transferido"
+            const item = items.find(i => i.id === req.itemId);
+            if (item) {
+                item.status = 'Transferido';
+                saveToLocalStorage('edureuso_items', items);
+            }
+
+            renderRequestsTable();
+            alert('Status da transferência atualizado para Concluído!');
+        }
+
+        function updateRequestsBadge() {
+            const badge = document.getElementById('requests-badge');
+            if (requests.length > 0) {
+                badge.textContent = requests.length;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+    </script>
+</body>
+</html>
